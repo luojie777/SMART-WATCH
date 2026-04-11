@@ -398,7 +398,6 @@ int Get_Max_Day(int year_offset, int month) {
  */
 void ADC_Read_Raw(void)
 {
-	// 启动ADC2单次转换
 	if (HAL_ADC_Start(&hadc2) != HAL_OK)
 	{
 		Error_Handler();
