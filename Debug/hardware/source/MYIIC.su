@@ -1,0 +1,10 @@
+../hardware/source/MYIIC.c:4:6:MyI2C_W_SCL	16	static
+../hardware/source/MYIIC.c:10:6:MyI2C_W_SDA	16	static
+../hardware/source/MYIIC.c:15:9:MyI2C_R_SDA	16	static
+../hardware/source/MYIIC.c:23:6:MyI2C_Init	8	static
+../hardware/source/MYIIC.c:30:6:MyI2C_Start	8	static
+../hardware/source/MYIIC.c:38:6:MyI2C_Stop	8	static
+../hardware/source/MYIIC.c:45:6:MyI2C_SendByte	24	static
+../hardware/source/MYIIC.c:56:9:MyI2C_ReceiveByte	16	static
+../hardware/source/MYIIC.c:73:6:MyI2C_SendAck	16	static
+../hardware/source/MYIIC.c:80:9:MyI2C_ReceiveAck	16	static

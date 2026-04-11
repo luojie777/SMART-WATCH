@@ -1,0 +1,5 @@
+../hardware/source/MPU6050.c:5:9:MPU6050_ReadReg	1
+../hardware/source/MPU6050.c:25:6:MPU6050_WriteReg	1
+../hardware/source/MPU6050.c:37:6:MPU6050_Init	1
+../hardware/source/MPU6050.c:50:9:MPU6050_GetID	1
+../hardware/source/MPU6050.c:55:6:MPU6050_GetData	1

@@ -1,0 +1,4 @@
+../hardware/source/DS18B20.c:4:9:DS18B20_Init	16	static
+../hardware/source/DS18B20.c:15:6:DS18B20_WriteByte	24	static
+../hardware/source/DS18B20.c:28:9:DS18B20_ReadByte	16	static
+../hardware/source/DS18B20.c:41:7:DS18B20_ReadTemperature	16	static

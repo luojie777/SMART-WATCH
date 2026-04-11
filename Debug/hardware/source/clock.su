@@ -1,0 +1,7 @@
+../hardware/source/clock.c:11:26:RTC_EnterInitMode	24	static
+../hardware/source/clock.c:38:26:RTC_ExitInitMode	24	static
+../hardware/source/clock.c:65:17:RTC_ReadTimeCounter	32	static
+../hardware/source/clock.c:97:26:RTC_WriteTimeCounter	24	static
+../hardware/source/clock.c:124:19:Clock_RTC_SetTime	24	static
+../hardware/source/clock.c:129:12:Clock_RTC_GetTime	24	static
+../hardware/source/clock.c:134:6:Clock_RTC_Init	48	static

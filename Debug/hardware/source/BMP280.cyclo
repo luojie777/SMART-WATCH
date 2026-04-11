@@ -1,0 +1,7 @@
+../hardware/source/BMP280.c:11:15:BMP280_Init	2
+../hardware/source/BMP280.c:88:9:BMP280_ReadID	1
+../hardware/source/BMP280.c:102:8:BMP280_ReadTemp	1
+../hardware/source/BMP280.c:130:8:BMP280_ReadPress	1
+../hardware/source/BMP280.c:159:8:BMP280_ReadAltitude	1
+../hardware/source/BMP280.c:178:8:BMP280_compensate_T	1
+../hardware/source/BMP280.c:194:8:BMP280_compensate_P	2
