@@ -1,0 +1,16 @@
+org.qtproject.example.BLE_Controller-profileinstaller-1.3.0-0 C:\Users\25213\.gradle\caches\8.14.3\transforms\53709ed896e0852fac2488bcffb2c45c\transformed\profileinstaller-1.3.0\res
+org.qtproject.example.BLE_Controller-tracing-1.2.0-1 C:\Users\25213\.gradle\caches\8.14.3\transforms\5a5cfd5e480d9337816565d9b5988d3b\transformed\tracing-1.2.0\res
+org.qtproject.example.BLE_Controller-annotation-experimental-1.4.1-2 C:\Users\25213\.gradle\caches\8.14.3\transforms\7fd03c0b17557b353d5f60992ae82aef\transformed\annotation-experimental-1.4.1\res
+org.qtproject.example.BLE_Controller-startup-runtime-1.1.1-3 C:\Users\25213\.gradle\caches\8.14.3\transforms\8278d547b2d082f8156587ac03f419c6\transformed\startup-runtime-1.1.1\res
+org.qtproject.example.BLE_Controller-core-runtime-2.2.0-4 C:\Users\25213\.gradle\caches\8.14.3\transforms\ab6c28b52bb3a80044749d1c3fc8cb57\transformed\core-runtime-2.2.0\res
+org.qtproject.example.BLE_Controller-core-viewtree-1.0.0-5 C:\Users\25213\.gradle\caches\8.14.3\transforms\c3bfbcbbefe65925648195894f8055de\transformed\core-viewtree-1.0.0\res
+org.qtproject.example.BLE_Controller-core-1.16.0-6 C:\Users\25213\.gradle\caches\8.14.3\transforms\c568280f9817ac135c28ceef303183fa\transformed\core-1.16.0\res
+org.qtproject.example.BLE_Controller-lifecycle-runtime-2.6.2-7 C:\Users\25213\.gradle\caches\8.14.3\transforms\cad77c39876a2c989e8c471525464c32\transformed\lifecycle-runtime-2.6.2\res
+org.qtproject.example.BLE_Controller-java-8 D:\QT6\6.10.2\android_arm64_v8a\src\android\java\res
+org.qtproject.example.BLE_Controller-pngs-9 D:\QT_Project\watch3\build\Qt_6_10_2_for_Android_arm64_v8a-Debug\android-build\build\generated\res\pngs\debug
+org.qtproject.example.BLE_Controller-resValues-10 D:\QT_Project\watch3\build\Qt_6_10_2_for_Android_arm64_v8a-Debug\android-build\build\generated\res\resValues\debug
+org.qtproject.example.BLE_Controller-packageDebugResources-11 D:\QT_Project\watch3\build\Qt_6_10_2_for_Android_arm64_v8a-Debug\android-build\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+org.qtproject.example.BLE_Controller-packageDebugResources-12 D:\QT_Project\watch3\build\Qt_6_10_2_for_Android_arm64_v8a-Debug\android-build\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+org.qtproject.example.BLE_Controller-debug-13 D:\QT_Project\watch3\build\Qt_6_10_2_for_Android_arm64_v8a-Debug\android-build\build\intermediates\merged_res\debug\mergeDebugResources
+org.qtproject.example.BLE_Controller-android-build-14 D:\QT_Project\watch3\build\Qt_6_10_2_for_Android_arm64_v8a-Debug\android-build\res
+org.qtproject.example.BLE_Controller-debug-15 D:\QT_Project\watch3\build\Qt_6_10_2_for_Android_arm64_v8a-Debug\android-build\src\debug\res
