@@ -404,14 +404,13 @@ void ADC_Read_Raw(void)
 		Error_Handler();
 	}
 
-	// 等待转换完成（超时时间10ms）
+	// 等待转换完成
 	if (HAL_ADC_PollForConversion(&hadc2, 10) == HAL_OK)
 	{
 		// 读取ADC原始值
 		adc_raw = HAL_ADC_GetValue(&hadc2);
 	}
 
-	// 停止ADC转换
 	HAL_ADC_Stop(&hadc2);
 }
 
