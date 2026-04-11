@@ -10,7 +10,7 @@
 #include <QDateTime>
 #include <QDebug>
 
-// HC-06 BLE模块的典型UUID（根据你的模块可能需要调整）
+// HC-06 BLE模块的典型UUID
 const QBluetoothUuid MainWindow::SERVICE_UUID = QBluetoothUuid(QString("0000ffe0-0000-1000-8000-00805f9b34fb"));
 const QBluetoothUuid MainWindow::WRITE_CHARACTERISTIC_UUID = QBluetoothUuid(QString("0000ffe2-0000-1000-8000-00805f9b34fb"));
 const QBluetoothUuid MainWindow::NOTIFY_CHARACTERISTIC_UUID = QBluetoothUuid(QString("0000ffe1-0000-1000-8000-00805f9b34fb"));
