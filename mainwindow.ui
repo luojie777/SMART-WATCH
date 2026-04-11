@@ -6,140 +6,230 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>383</width>
-    <height>629</height>
+    <width>360</width>
+    <height>720</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>智能手表BLE控制器</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+QMainWindow {
+    background-color: #f0f2f5;
+}
+QLabel {
+    font-family: "Microsoft YaHei";
+}
+QPushButton {
+    background-color: #1890ff;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: "Microsoft YaHei";
+    font-size: 14px;
+}
+QPushButton:hover {
+    background-color: #40a9ff;
+}
+QPushButton:pressed {
+    background-color: #096dd9;
+}
+QListWidget {
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+    padding: 8px;
+}
+QLineEdit {
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+    padding: 8px;
+    font-family: "Microsoft YaHei";
+}
+QTextBrowser {
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+    padding: 8px;
+}
+#label_2 {
+    color: #1890ff;
+}
+#status_labal {
+    font-weight: bold;
+    font-size: 14px;
+}
+   </string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>341</width>
-      <height>611</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QLabel" name="label_2">
-       <property name="font">
-        <font>
-         <pointsize>21</pointsize>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>LUOJIE SMART_WATCH BLE</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignmentFlag::AlignCenter</set>
-       </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="label_2">
+      <property name="font">
+       <font>
+        <pointsize>18</pointsize>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>⌚ LUOJIE SMART WATCH</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignmentFlag::AlignCenter</set>
+      </property>
+      <property name="margin">
+       <number>15</number>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QGridLayout" name="buttonGridLayout">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="btn_startScan">
+        <property name="text">
+         <string>开始扫描</string>
+        </property>
+        <property name="minimumHeight">
+         <number>40</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="btn_stopScan">
+        <property name="text">
+         <string>停止扫描</string>
+        </property>
+        <property name="minimumHeight">
+         <number>40</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="btn_connect">
+        <property name="text">
+         <string>连接设备</string>
+        </property>
+        <property name="minimumHeight">
+         <number>40</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="btn_disconnect">
+        <property name="text">
+         <string>断开连接</string>
+        </property>
+        <property name="minimumHeight">
+         <number>40</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QScrollArea" name="deviceScrollArea">
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <property name="minimumHeight">
+       <number>150</number>
+      </property>
+      <widget class="QWidget" name="deviceScrollWidget">
+       <layout class="QVBoxLayout" name="deviceScrollLayout">
+        <item>
+         <widget class="QListWidget" name="list_devices"/>
+        </item>
+       </layout>
       </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QPushButton" name="btn_startScan">
-         <property name="text">
-          <string>开始扫描</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btn_stopScan">
-         <property name="text">
-          <string>停止扫描</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QPushButton" name="btn_connect">
-         <property name="text">
-          <string>连接设备</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btn_disconnect">
-         <property name="text">
-          <string>断开连接</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QListWidget" name="list_devices"/>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="font">
-          <font>
-           <pointsize>14</pointsize>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>连接状态:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="status_labal">
-         <property name="text">
-          <string>未连接</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btn_watch">
-         <property name="text">
-          <string>进入手表控制</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
-       <item>
-        <widget class="QLineEdit" name="input_message"/>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btn_send">
-         <property name="text">
-          <string>发送消息</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QTextBrowser" name="text_log"/>
-     </item>
-    </layout>
-   </widget>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>连接状态:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="status_labal">
+        <property name="text">
+         <string>未连接</string>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_watch">
+        <property name="text">
+         <string>进入控制</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QLineEdit" name="input_message">
+        <property name="placeholderText">
+         <string>输入消息...</string>
+        </property>
+        <property name="minimumHeight">
+         <number>40</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_send">
+        <property name="text">
+         <string>发送</string>
+        </property>
+        <property name="minimumHeight">
+         <number>40</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QScrollArea" name="logScrollArea">
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <property name="minimumHeight">
+       <number>180</number>
+      </property>
+      <widget class="QWidget" name="logScrollWidget">
+       <layout class="QVBoxLayout" name="logScrollLayout">
+        <item>
+         <widget class="QTextBrowser" name="text_log"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>383</width>
-     <height>18</height>
+     <width>360</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
