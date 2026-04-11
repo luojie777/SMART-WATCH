@@ -1,0 +1,61 @@
+# ====================== Qt 项目核心忽略规则 ======================
+# 编译输出目录（你图里的 build/ 全靠这个忽略！）
+build/
+Build/
+debug/
+Debug/
+release/Release/
+
+# Qt Creator 配置文件
+*.pro.user
+*.pro.user.*
+.qtcreator/
+*.creator
+*.creator.user
+*.creator.user.*
+
+# Android 构建临时文件（你图里的 clangd 缓存、gradle 全靠这个）
+android-build/
+.gradle/
+*.apk
+*.aab
+local.properties
+gradlew
+gradlew.bat
+
+# 编译生成的二进制/中间文件
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dll
+*.exe
+*.elf
+*.bin
+*.hex
+*.out
+
+# ====================== 通用系统/IDE 忽略规则 ======================
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# IDE 通用
+.idea/
+.vscode/
+*.swp
+*.swo
+*.log
