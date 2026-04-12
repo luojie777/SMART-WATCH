@@ -155,56 +155,56 @@ static uint32_t axy_check_counter = 1;
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+		.name = "defaultTask",
+		.stack_size = 256 * 4,
+		.priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for HomeButtonListe */
 osThreadId_t HomeButtonListeHandle;
 const osThreadAttr_t HomeButtonListe_attributes = {
-  .name = "HomeButtonListe",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+		.name = "HomeButtonListe",
+		.stack_size = 256 * 4,
+		.priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for HomeButtonHandl */
 osThreadId_t HomeButtonHandlHandle;
 const osThreadAttr_t HomeButtonHandl_attributes = {
-  .name = "HomeButtonHandl",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal2,
+		.name = "HomeButtonHandl",
+		.stack_size = 256 * 4,
+		.priority = (osPriority_t) osPriorityNormal2,
 };
 /* Definitions for lrbuttonListen */
 osThreadId_t lrbuttonListenHandle;
 const osThreadAttr_t lrbuttonListen_attributes = {
-  .name = "lrbuttonListen",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal1,
+		.name = "lrbuttonListen",
+		.stack_size = 256 * 4,
+		.priority = (osPriority_t) osPriorityNormal1,
 };
 /* Definitions for UartTestTask */
 osThreadId_t UartTestTaskHandle;
 const osThreadAttr_t UartTestTask_attributes = {
-  .name = "UartTestTask",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+		.name = "UartTestTask",
+		.stack_size = 256 * 4,
+		.priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for OledshowTask */
 osThreadId_t OledshowTaskHandle;
 const osThreadAttr_t OledshowTask_attributes = {
-  .name = "OledshowTask",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal3,
+		.name = "OledshowTask",
+		.stack_size = 256 * 4,
+		.priority = (osPriority_t) osPriorityNormal3,
 };
 /* Definitions for MPU6050Task */
 osThreadId_t MPU6050TaskHandle;
 const osThreadAttr_t MPU6050Task_attributes = {
-  .name = "MPU6050Task",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+		.name = "MPU6050Task",
+		.stack_size = 128 * 4,
+		.priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for UARTQueue */
 osMessageQueueId_t UARTQueueHandle;
 const osMessageQueueAttr_t UARTQueue_attributes = {
-  .name = "UARTQueue"
+		.name = "UARTQueue"
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -442,67 +442,67 @@ void StartMPU6050Task(void *argument);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /**
-  * @brief  FreeRTOS initialization
-  * @param  None
-  * @retval None
-  */
+ * @brief  FreeRTOS initialization
+ * @param  None
+ * @retval None
+ */
 void MX_FREERTOS_Init(void) {
-  /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
 	xUartQueue = xQueueCreate(UART_QUEUE_LEN, USART2_RX_BUF_SIZE);
 
 	HAL_UART_Receive_IT(&huart2, usart2_rx_single_buf, 1);
-  /* USER CODE END Init */
+	/* USER CODE END Init */
 
-  /* USER CODE BEGIN RTOS_MUTEX */
+	/* USER CODE BEGIN RTOS_MUTEX */
 	/* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
+	/* USER CODE END RTOS_MUTEX */
 
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
+	/* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
+	/* USER CODE END RTOS_SEMAPHORES */
 
-  /* USER CODE BEGIN RTOS_TIMERS */
+	/* USER CODE BEGIN RTOS_TIMERS */
 	/* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
+	/* USER CODE END RTOS_TIMERS */
 
-  /* Create the queue(s) */
-  /* creation of UARTQueue */
-  UARTQueueHandle = osMessageQueueNew (16, sizeof(uint16_t), &UARTQueue_attributes);
+	/* Create the queue(s) */
+	/* creation of UARTQueue */
+	UARTQueueHandle = osMessageQueueNew (16, sizeof(uint16_t), &UARTQueue_attributes);
 
-  /* USER CODE BEGIN RTOS_QUEUES */
+	/* USER CODE BEGIN RTOS_QUEUES */
 	/* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
+	/* USER CODE END RTOS_QUEUES */
 
-  /* Create the thread(s) */
-  /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+	/* Create the thread(s) */
+	/* creation of defaultTask */
+	defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
-  /* creation of HomeButtonListe */
-  HomeButtonListeHandle = osThreadNew(StartHomeButtonListen, NULL, &HomeButtonListe_attributes);
+	/* creation of HomeButtonListe */
+	HomeButtonListeHandle = osThreadNew(StartHomeButtonListen, NULL, &HomeButtonListe_attributes);
 
-  /* creation of HomeButtonHandl */
-  HomeButtonHandlHandle = osThreadNew(StartHomeButtonHandler, NULL, &HomeButtonHandl_attributes);
+	/* creation of HomeButtonHandl */
+	HomeButtonHandlHandle = osThreadNew(StartHomeButtonHandler, NULL, &HomeButtonHandl_attributes);
 
-  /* creation of lrbuttonListen */
-  lrbuttonListenHandle = osThreadNew(StartlrbuttonListen, NULL, &lrbuttonListen_attributes);
+	/* creation of lrbuttonListen */
+	lrbuttonListenHandle = osThreadNew(StartlrbuttonListen, NULL, &lrbuttonListen_attributes);
 
-  /* creation of UartTestTask */
-  UartTestTaskHandle = osThreadNew(StartUartTestTask, NULL, &UartTestTask_attributes);
+	/* creation of UartTestTask */
+	UartTestTaskHandle = osThreadNew(StartUartTestTask, NULL, &UartTestTask_attributes);
 
-  /* creation of OledshowTask */
-  OledshowTaskHandle = osThreadNew(StartOledshowTask, NULL, &OledshowTask_attributes);
+	/* creation of OledshowTask */
+	OledshowTaskHandle = osThreadNew(StartOledshowTask, NULL, &OledshowTask_attributes);
 
-  /* creation of MPU6050Task */
-  MPU6050TaskHandle = osThreadNew(StartMPU6050Task, NULL, &MPU6050Task_attributes);
+	/* creation of MPU6050Task */
+	MPU6050TaskHandle = osThreadNew(StartMPU6050Task, NULL, &MPU6050Task_attributes);
 
-  /* USER CODE BEGIN RTOS_THREADS */
+	/* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
-  /* USER CODE END RTOS_THREADS */
+	/* USER CODE END RTOS_THREADS */
 
-  /* USER CODE BEGIN RTOS_EVENTS */
+	/* USER CODE BEGIN RTOS_EVENTS */
 	/* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
+	/* USER CODE END RTOS_EVENTS */
 
 }
 
@@ -515,7 +515,7 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
-  /* USER CODE BEGIN StartDefaultTask */
+	/* USER CODE BEGIN StartDefaultTask */
 	/* Infinite loop */
 	//HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	char message[50] = "";
@@ -685,7 +685,7 @@ void StartDefaultTask(void *argument)
 
 		osDelay(100);  // 降低任务CPU占用率
 	}
-  /* USER CODE END StartDefaultTask */
+	/* USER CODE END StartDefaultTask */
 }
 
 /* USER CODE BEGIN Header_StartHomeButtonListen */
@@ -697,7 +697,7 @@ void StartDefaultTask(void *argument)
 /* USER CODE END Header_StartHomeButtonListen */
 void StartHomeButtonListen(void *argument)
 {
-  /* USER CODE BEGIN StartHomeButtonListen */
+	/* USER CODE BEGIN StartHomeButtonListen */
 	/* Infinite loop */
 	while(1)
 	{
@@ -732,7 +732,7 @@ void StartHomeButtonListen(void *argument)
 		}
 		osDelay(50);
 	}
-  /* USER CODE END StartHomeButtonListen */
+	/* USER CODE END StartHomeButtonListen */
 }
 
 /* USER CODE BEGIN Header_StartHomeButtonHandler */
@@ -744,7 +744,7 @@ void StartHomeButtonListen(void *argument)
 /* USER CODE END Header_StartHomeButtonHandler */
 void StartHomeButtonHandler(void *argument)
 {
-  /* USER CODE BEGIN StartHomeButtonHandler */
+	/* USER CODE BEGIN StartHomeButtonHandler */
 	/* Infinite loop */
 	struct tm *now;
 	char row1[30] = "";
@@ -770,8 +770,8 @@ void StartHomeButtonHandler(void *argument)
 				g_work_state = PLAY_GAME;
 				g_home_key_state = KEY_NONE;
 				vTaskSuspend(OledshowTaskHandle);
-//				vTaskSuspend(UartTestTaskHandle);
-//				vTaskSuspend(lrbuttonListenHandle);
+				//				vTaskSuspend(UartTestTaskHandle);
+				//				vTaskSuspend(lrbuttonListenHandle);
 				vTaskSuspend(MPU6050TaskHandle);
 				OLED_CLS();
 				xTaskCreate(gameTask,          // 任务函数
@@ -791,7 +791,7 @@ void StartHomeButtonHandler(void *argument)
 
 			// 恢复所有挂起的任务（包括homeButtonListeHandle）
 			vTaskResume(OledshowTaskHandle);
-						    vTaskResume(UartTestTaskHandle);//			    //vTaskResume(homeButtonListeHandle); // 恢复之前注释的按键监听任务
+			vTaskResume(UartTestTaskHandle);//			    //vTaskResume(homeButtonListeHandle); // 恢复之前注释的按键监听任务
 			//			    vTaskResume(lrbuttonListenHandle);
 			vTaskResume(MPU6050TaskHandle);
 
@@ -876,7 +876,7 @@ void StartHomeButtonHandler(void *argument)
 		osDelay(200);
 		//延时不能太短，不然会判断两次长按
 	}
-  /* USER CODE END StartHomeButtonHandler */
+	/* USER CODE END StartHomeButtonHandler */
 }
 
 /* USER CODE BEGIN Header_StartlrbuttonListen */
@@ -888,7 +888,7 @@ void StartHomeButtonHandler(void *argument)
 /* USER CODE END Header_StartlrbuttonListen */
 void StartlrbuttonListen(void *argument)
 {
-  /* USER CODE BEGIN StartlrbuttonListen */
+	/* USER CODE BEGIN StartlrbuttonListen */
 	/* Infinite loop */
 	char row1[30] = "";
 	char row2[30] = "";
@@ -1022,13 +1022,21 @@ void StartlrbuttonListen(void *argument)
 				switch(Modify_Temp_choose)
 				{
 				case mintemp:
-					if(L_temp > 0) {
+					if(L_temp > -40) {
 						L_temp--;
+						// 确保低温不能比高温高
+						if(L_temp >= H_temp) {
+							L_temp = H_temp - 1;
+						}
 					}
 					break;
 				case maxtemp:
-					if(H_temp > 0) {
+					if(H_temp > -40) {
 						H_temp--;
+						// 确保高温不能比低温低
+						if(H_temp <= L_temp) {
+							H_temp = L_temp + 1;
+						}
 					}
 					break;
 				}
@@ -1041,13 +1049,21 @@ void StartlrbuttonListen(void *argument)
 				switch(Modify_Temp_choose)
 				{
 				case mintemp:
-					if(L_temp > 0) {
+					if(L_temp < 85) {
 						L_temp++;
+						// 确保低温不能比高温高
+						if(L_temp >= H_temp) {
+							L_temp = H_temp - 1;
+						}
 					}
 					break;
 				case maxtemp:
-					if(H_temp > 0) {
+					if(H_temp < 85) {
 						H_temp++;
+						// 确保高温不能比低温低
+						if(H_temp <= L_temp) {
+							H_temp = L_temp + 1;
+						}
 					}
 					break;
 				}
@@ -1058,7 +1074,7 @@ void StartlrbuttonListen(void *argument)
 		}
 		osDelay(50);
 	}
-  /* USER CODE END StartlrbuttonListen */
+	/* USER CODE END StartlrbuttonListen */
 }
 
 /* USER CODE BEGIN Header_StartUartTestTask */
@@ -1070,7 +1086,7 @@ void StartlrbuttonListen(void *argument)
 /* USER CODE END Header_StartUartTestTask */
 void StartUartTestTask(void *argument)
 {
-  /* USER CODE BEGIN StartUartTestTask */
+	/* USER CODE BEGIN StartUartTestTask */
 	/* Infinite loop */
 	char message[150] = "";
 	//	char er[6] = "";
@@ -1134,10 +1150,10 @@ void StartUartTestTask(void *argument)
 		//taskENTER_CRITICAL();
 
 		battery_volt = ADC_Calculate_BatteryVoltage();
-		if(battery_volt<3.0f)
+		if(battery_volt<3.3f)
 			percentage = 0.0;
 		else
-			percentage = ((battery_volt - 3.0f) / (4.2f - 3.0f)) * 100.0f ;
+			percentage = ((battery_volt - 3.3f) / (4.2f - 3.3f)) * 100.0f ;
 
 		if(percentage>100)
 			percentage=100.0;
@@ -1145,7 +1161,9 @@ void StartUartTestTask(void *argument)
 		snprintf(message,sizeof(message),"TIME(:)%d-%d-%d %02d:%02d:%02d(-)",
 				now->tm_year + 1900,now->tm_mon + 1,now->tm_mday,
 				now->tm_hour,now->tm_min,now->tm_sec);
+		taskENTER_CRITICAL();
 		HAL_UART_Transmit(&huart2, (uint8_t*)message, strlen(message), 100);
+		taskEXIT_CRITICAL();
 		memset(message, 0, sizeof(message));
 
 		BMP280_Temperature = BMP280_ReadTemp();
@@ -1174,17 +1192,21 @@ void StartUartTestTask(void *argument)
 		altitude = 44330.0 * (1.0 - pow( (BMP280_Pressure / BMP280_P0), 1.0 / 5.255 ));
 		snprintf(message,sizeof(message),"TEMP1(:)%.2f(-)TEMP2(:)%.2f(-)Pressure(:)%.2f(-)HIGH(:)%.2f(-)",
 				ds18b20_Temperature,BMP280_Temperature,BMP280_Pressure,altitude);
+		taskENTER_CRITICAL();
 		HAL_UART_Transmit(&huart2, (uint8_t*)message, strlen(message), 100);
+		//taskEXIT_CRITICAL();
 		memset(message, 0, sizeof(message));
 
 		//HAL_Delay(10);
 		snprintf(message,sizeof(message),"H_temp(:)%.2f(-)L_temp(:)%.2f(-)L_PRE(:)%.0f(-)OFF(:)%ld(-)",H_temp,L_temp,L_preesure,Screen_off_time);
+		//taskENTER_CRITICAL();
 		HAL_UART_Transmit(&huart2, (uint8_t*)message, strlen(message), 100);
+		taskEXIT_CRITICAL();
 		//taskEXIT_CRITICAL();
 		osDelay(1000);
 	}
 
-  /* USER CODE END StartUartTestTask */
+	/* USER CODE END StartUartTestTask */
 }
 
 /* USER CODE BEGIN Header_StartOledshowTask */
@@ -1196,7 +1218,7 @@ void StartUartTestTask(void *argument)
 /* USER CODE END Header_StartOledshowTask */
 void StartOledshowTask(void *argument)
 {
-  /* USER CODE BEGIN StartOledshowTask */
+	/* USER CODE BEGIN StartOledshowTask */
 	/* Infinite loop*/
 	OLED_CLS();
 	char row1[30] = "";
@@ -1213,7 +1235,7 @@ void StartOledshowTask(void *argument)
 			//OLED_ShowStr(36, 0, (unsigned char*)"BAT", 2);
 			sprintf(row1,"%02d-%02d-%02d",now->tm_year + 1900,now->tm_mon + 1,now->tm_mday);
 			sprintf(row2,"%02d:%02d:%02d",now->tm_hour,now->tm_min,now->tm_sec);
-			sprintf(row3,"BAT:%.0f",percentage);
+			sprintf(row3,"BAT:%3.0f",percentage);
 			OLED_ShowStr(50, 0, (unsigned char*)row3, 1);
 			OLED_ShowStr(24, 1, (unsigned char*)row1, 2);
 			OLED_ShowStr(32, 3, (unsigned char*)row2, 2);
@@ -1251,9 +1273,9 @@ void StartOledshowTask(void *argument)
 			sprintf(row1,"BM280_T:%.2fC",BMP280_Temperature);
 			//sprintf(row2,"AHT20_T:%.2fC",AHT20_Temperature);
 			sprintf(row2,"18B20_T:%.2fC",ds18b20_Temperature);
-			sprintf(row3,"BAT:%.0f",percentage);
+			sprintf(row3,"BAT:%3.0f",percentage);
 			OLED_ShowStr(50, 0, (unsigned char*)row3, 1);
-			OLED_ShowCN_STR(48,1,10,2);
+			OLED_ShowCN_STR(48,1,0,2);
 			OLED_ShowStr(0, 3, (unsigned char*)row1, 2);
 			OLED_ShowStr(0, 5, (unsigned char*)row2, 2);
 			sprintf(row2,"min:%.2f max:%.2f",L_temp,H_temp);
@@ -1268,9 +1290,9 @@ void StartOledshowTask(void *argument)
 			altitude = 44330.0 * (1.0 - pow( (BMP280_Pressure / BMP280_P0), 1.0 / 5.255 ));
 			sprintf(row1,"BMP280_P:%.0fPa",BMP280_Pressure);
 			sprintf(row2,"current_H:%.0fm",altitude);
-			sprintf(row3,"BAT:%.0f",percentage);
+			sprintf(row3,"BAT:%3.0f",percentage);
 			OLED_ShowStr(50, 0, (unsigned char*)row3, 1);
-			OLED_ShowCN_STR(48,2,12,2);
+			OLED_ShowCN_STR(48,2,2,2);
 			OLED_ShowStr(0, 4, (unsigned char*)row1, 2);
 			OLED_ShowStr(0, 6, (unsigned char*)row2, 2);
 			Picture_before = Current_Show_Picture;
@@ -1282,21 +1304,21 @@ void StartOledshowTask(void *argument)
 				//MPU6050_Init();
 			}
 
-			//OLED_ShowCN_STR(48,3,8,2);
-						MPU6050_GetData(&AccX, &AccY, &AccZ,&GyroX, &GyroY, &GyroZ);
-						sprintf(row1,"%.2f %.2f %.2f",AccX,AccY,AccZ);
-						sprintf(row2,"%.2f %.2f %.2f",GyroX,GyroY,GyroZ);
-						sprintf(row3,"BAT:%.2f",percentage);
-						OLED_ShowStr(36, 0, (unsigned char*)row3, 2);
-						OLED_ShowStr(0, 4, (unsigned char*)row1, 2);
-						OLED_ShowStr(0, 6, (unsigned char*)row2, 2);
+			OLED_ShowCN_STR(48,3,6,2);
+			//						MPU6050_GetData(&AccX, &AccY, &AccZ,&GyroX, &GyroY, &GyroZ);
+			//						sprintf(row1,"%.2f %.2f %.2f",AccX,AccY,AccZ);
+			//						sprintf(row2,"%.2f %.2f %.2f",GyroX,GyroY,GyroZ);
+			//						sprintf(row3,"BAT:%.2f",percentage);
+			//						OLED_ShowStr(36, 0, (unsigned char*)row3, 2);
+			//						OLED_ShowStr(0, 4, (unsigned char*)row1, 2);
+			//						OLED_ShowStr(0, 6, (unsigned char*)row2, 2);
 			Picture_before = Current_Show_Picture;
 			break;
 		}
 		osDelay(200);
 		//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
 	}
-  /* USER CODE END StartOledshowTask */
+	/* USER CODE END StartOledshowTask */
 }
 
 /* USER CODE BEGIN Header_StartMPU6050Task */
@@ -1308,7 +1330,7 @@ void StartOledshowTask(void *argument)
 /* USER CODE END Header_StartMPU6050Task */
 void StartMPU6050Task(void *argument)
 {
-  /* USER CODE BEGIN StartMPU6050Task */
+	/* USER CODE BEGIN StartMPU6050Task */
 	/* Infinite loop */
 	float acc_x_change, acc_y_change, acc_z_change, total_acc_change;
 	//MPU6050_Init();
@@ -1376,7 +1398,7 @@ void StartMPU6050Task(void *argument)
 		// HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
 		osDelay(100);
 	}
-  /* USER CODE END StartMPU6050Task */
+	/* USER CODE END StartMPU6050Task */
 }
 
 /* Private application code --------------------------------------------------*/
