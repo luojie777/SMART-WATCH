@@ -1,0 +1,45 @@
+# STM32CubeIDE generated files
+Debug/
+Release/
+
+# Build files
+*.o
+*.d
+*.elf
+*.hex
+*.bin
+*.map
+
+# IDE files
+.project
+.cproject
+.settings/
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+
+# Log files
+*.log
+
+# Windows files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# MacOS files
+.DS_Store
+
+# Linux files
+*~
+
+# STM32CubeMX generated files
+*.ioc.user
+
+# FreeRTOS generated files
+FreeRTOSConfig.h
