@@ -6,6 +6,7 @@
 #include <QLowEnergyController>
 #include <QLowEnergyService>
 #include <QBluetoothUuid>
+#include <QtCore>
 #include <form.h>
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -25,6 +26,7 @@ public:
 
 signals:
     void analyzeData(QString receivedText);
+    void bluetoothDisconnected();
 
 public slots:
     void handlerbledata(QString receivedText);
@@ -80,6 +82,16 @@ private:
     QLowEnergyCharacteristic writeCharacteristic;
     QLowEnergyCharacteristic notifyCharacteristic;
 
+    // 重试机制相关
+    QTimer *responseTimer;
+    QString currentCommand;
+    int retryCount;
+    const int MAX_RETRIES = 3;
+    const int RESPONSE_TIMEOUT = 2000; // 2秒超时
+    
+    // 消息拼接
+    QString partialMessage;
+
     // 日志记录
     void logMessage(const QString &message);
     void clearLog();
@@ -95,6 +107,14 @@ private:
     // 初始化
     void initializeUI();
     void initializeBLE();
+    
+    // 命令发送与重试
+    void sendCommandWithRetry(const QString &command);
+    void onResponseTimeout();
+    void handleCommandResponse(const QString &response);
+    
+    // 重新连接
+    void reconnectToLastDevice();
 
 
 };

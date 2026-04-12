@@ -82,7 +82,10 @@ void Form::handlerdata(QString receivedText)
         }
         else if(single_item[0] == "OFF")
         {
-            ui->current_watch_extingguishtime->setText(single_item[1]);
+            // 将毫秒转换为秒显示
+            int ms = single_item[1].toInt();
+            int sec = ms / 1000;
+            ui->current_watch_extingguishtime->setText(QString::number(sec) + "s");
         }
 
 
@@ -106,8 +109,127 @@ void Form::on_btn_checktime_clicked()
 }
 
 
+void Form::handleBluetoothDisconnected()
+{
+    // 显示蓝牙断开提示
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "蓝牙断开", "蓝牙连接已断开，是否重新连接？",
+                                  QMessageBox::Yes | QMessageBox::No);
+    
+    if (reply == QMessageBox::Yes) {
+        // 发出重新连接信号
+        emit reconnectBluetooth();
+    }
+}
+
 void Form::on_btn_makesure_clicked()
 {
+    // 验证输入
+    bool valid = true;
+    QString errorMessage = "";
+    
+    // 获取当前手表上的温度值
+    float currentHtemp = ui->H_temp->text().toFloat();
+    float currentLtemp = ui->L_temp->text().toFloat();
+    
+    // 验证高温设置
+    if(!ui->modify_temp_H->text().isEmpty())
+    {
+        bool ok;
+        float htemp = ui->modify_temp_H->text().toFloat(&ok);
+        if(!ok)
+        {
+            valid = false;
+            errorMessage = "高温设置必须是数字";
+        }
+        else if(htemp < -40 || htemp > 85)
+        {
+            valid = false;
+            errorMessage = "高温设置范围应在-40到85之间";
+        }
+        else if(htemp < currentLtemp)
+        {
+            valid = false;
+            errorMessage = "高温设置不能低于当前低温值";
+        }
+    }
+    
+    // 验证低温设置
+    if(valid && !ui->modify_temp_L->text().isEmpty())
+    {
+        bool ok;
+        float ltemp = ui->modify_temp_L->text().toFloat(&ok);
+        if(!ok)
+        {
+            valid = false;
+            errorMessage = "低温设置必须是数字";
+        }
+        else if(ltemp < -40 || ltemp > 85)
+        {
+            valid = false;
+            errorMessage = "低温设置范围应在-40到85之间";
+        }
+        else if(ltemp > currentHtemp)
+        {
+            valid = false;
+            errorMessage = "低温设置不能高于当前高温值";
+        }
+    }
+    
+    // 验证气压设置
+    if(valid && !ui->modify_preesure_L->text().isEmpty())
+    {
+        bool ok;
+        float lpre = ui->modify_preesure_L->text().toFloat(&ok);
+        if(!ok)
+        {
+            valid = false;
+            errorMessage = "气压设置必须是数字";
+        }
+        else if(lpre < 1000)
+        {
+            valid = false;
+            errorMessage = "气压设置不能低于1000";
+        }
+    }
+    
+    // 验证息屏时间设置
+    if(valid && !ui->modify_extingguishtime->text().isEmpty())
+    {
+        bool ok;
+        int offtime = ui->modify_extingguishtime->text().toInt(&ok);
+        if(!ok)
+        {
+            valid = false;
+            errorMessage = "息屏时间必须是数字";
+        }
+        else if(offtime < 5 || offtime > 60)
+        {
+            valid = false;
+            errorMessage = "息屏时间范围应在5到60秒之间";
+        }
+    }
+    
+    // 验证高温不能低于低温（当同时设置高温和低温时检查）
+    if(valid && !ui->modify_temp_H->text().isEmpty() && !ui->modify_temp_L->text().isEmpty())
+    {
+        float htemp = ui->modify_temp_H->text().toFloat();
+        float ltemp = ui->modify_temp_L->text().toFloat();
+        if(htemp < ltemp)
+        {
+            valid = false;
+            errorMessage = "高温设置不能低于低温设置";
+        }
+    }
+    
+    // 如果验证失败，显示错误信息
+    if(!valid)
+    {
+        QMessageBox::warning(this, "输入错误", errorMessage);
+        return;
+    }
+    
+    // 构建修改命令
     QString modify_message = "modify_env+";
     if(!ui->modify_temp_H->text().isEmpty())
     {
@@ -123,7 +245,10 @@ void Form::on_btn_makesure_clicked()
     }
     if(!ui->modify_extingguishtime->text().isEmpty())
     {
-        modify_message += "$M_OffTime:" + ui->modify_extingguishtime->text() + "$";
+        // 将秒数转换为毫秒（乘以1000）
+        int offtime = ui->modify_extingguishtime->text().toInt();
+        int offtime_ms = offtime * 1000;
+        modify_message += "$M_OffTime:" + QString::number(offtime_ms) + "$";
     }
 
     if(modify_message != "modify_env+")
@@ -132,6 +257,7 @@ void Form::on_btn_makesure_clicked()
         emit senddata(modify_message);
     }
 
+    // 清空输入框
     ui->modify_temp_H->clear();
     ui->modify_temp_L->clear();
     ui->modify_preesure_L->clear();

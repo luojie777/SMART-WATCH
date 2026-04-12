@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QKeyEvent> // 包含按键事件头文件
+#include <QMessageBox> // 包含消息框头文件
 namespace Ui {
 class Form;
 }
@@ -23,9 +24,11 @@ signals:
     // 自定义信号：通知主界面返回（无参数，只需触发即可）
     void backToMainWindow();
     void senddata(QString sendText);
+    void reconnectBluetooth();
 
 public slots:
     void handlerdata(QString receivedText);
+    void handleBluetoothDisconnected();
 
 private slots:
     void on_btn_checktime_clicked();

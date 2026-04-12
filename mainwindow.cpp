@@ -9,7 +9,7 @@
 #include <QMessageBox>
 #include <QDateTime>
 #include <QDebug>
-
+#include <QTimer>
 // HC-06 BLE模块的典型UUID
 const QBluetoothUuid MainWindow::SERVICE_UUID = QBluetoothUuid(QString("0000ffe0-0000-1000-8000-00805f9b34fb"));
 const QBluetoothUuid MainWindow::WRITE_CHARACTERISTIC_UUID = QBluetoothUuid(QString("0000ffe2-0000-1000-8000-00805f9b34fb"));
@@ -21,12 +21,18 @@ MainWindow::MainWindow(QWidget *parent)
     , discoveryAgent(nullptr)
     , controller(nullptr)
     , service(nullptr)
+    , responseTimer(nullptr)
+    , retryCount(0)
 {
     ui->setupUi(this);
 
     // 初始化
     initializeUI();
     initializeBLE();
+    
+    // 初始化响应定时器
+    responseTimer = new QTimer(this);
+    connect(responseTimer, &QTimer::timeout, this, &MainWindow::onResponseTimeout);
 
     logMessage("BLE控制器启动完成");
     logMessage("注意：请确保HC-06 BLE模块已开启");
@@ -42,6 +48,11 @@ MainWindow::~MainWindow()
     if (discoveryAgent) {
         discoveryAgent->stop();
         delete discoveryAgent;
+    }
+
+    if (responseTimer) {
+        responseTimer->stop();
+        delete responseTimer;
     }
 
     delete ui;
@@ -81,12 +92,8 @@ void MainWindow::handlerbledata(QString receivedText)
         return;
     }
 
-    // 发送数据
-    QByteArray data = receivedText.toUtf8();
-    logMessage(QString("发送: %1").arg(receivedText));
-
-    // 写入特征
-    service->writeCharacteristic(writeCharacteristic, data, QLowEnergyService::WriteWithResponse);
+    // 使用带重试机制的命令发送
+    sendCommandWithRetry(receivedText);
 
 }
 
@@ -261,12 +268,8 @@ void MainWindow::on_btn_send_clicked()
         return;
     }
 
-    // 发送数据
-    QByteArray data = message.toUtf8();
-    logMessage(QString("发送: %1").arg(message));
-
-    // 写入特征
-    service->writeCharacteristic(writeCharacteristic, data, QLowEnergyService::WriteWithResponse);
+    // 使用带重试机制的命令发送
+    sendCommandWithRetry(message);
 
     // 清空输入框
     //ui->input_message->clear();
@@ -424,6 +427,9 @@ void MainWindow::deviceDisconnected()
     logMessage("设备已断开连接");
 
     updateConnectionState(false);
+
+    // 发出蓝牙断开信号
+    emit bluetoothDisconnected();
 
     // 清理服务
     if (service) {
@@ -617,12 +623,35 @@ void MainWindow::characteristicChanged(const QLowEnergyCharacteristic &c, const 
     Q_UNUSED(c);
 
     if (!value.isEmpty()) {
-        QString receivedText = QString::fromUtf8(value).trimmed();
-        if(watch)
-        {
-            emit analyzeData(receivedText);
+        QString receivedText = QString::fromUtf8(value);
+        
+        // 消息拼接逻辑
+        partialMessage += receivedText;
+        
+        // 检查是否收到完整消息
+        if (partialMessage.contains("\n") || partialMessage.contains("(-)")) {
+            // 处理完整消息
+            QStringList messages = partialMessage.split("\n");
+            for (const QString &message : messages) {
+                QString trimmedMessage = message.trimmed();
+                if (!trimmedMessage.isEmpty()) {
+                    if(watch && trimmedMessage.contains("(:)")) {
+                        // 发送给watch处理的消息（包含"(:)"格式）
+                        emit analyzeData(trimmedMessage);
+                    }
+                    logMessage(QString("接收: %1").arg(trimmedMessage));
+                    
+                    // 处理命令响应
+                    handleCommandResponse(trimmedMessage);
+                }
+            }
+            
+            // 清空部分消息
+            partialMessage.clear();
+        } else {
+            // 消息不完整，等待下一部分
+            logMessage(QString("接收部分数据: %1").arg(receivedText.trimmed()));
         }
-        logMessage(QString("接收: %1").arg(receivedText));
     }
 }
 
@@ -641,6 +670,8 @@ void MainWindow::on_btn_watch_clicked()
         watch = new Form(nullptr);
         connect(this,&MainWindow::analyzeData,watch,&Form::handlerdata);
         connect(watch,&Form::senddata,this,&MainWindow::handlerbledata);
+        // 连接蓝牙断开信号
+        connect(this, &MainWindow::bluetoothDisconnected, watch, &Form::handleBluetoothDisconnected);
         // 2. 核心：绑定 Form 的返回信号到 MainWindow 的槽函数（这里用 lambda 表达式，简洁高效）
         connect(watch, &Form::backToMainWindow, this, [this]() {
             // 3. 显示 MainWindow 主界面
@@ -651,8 +682,83 @@ void MainWindow::on_btn_watch_clicked()
                 watch->hide();
             }
         });
+        // 连接重新连接信号
+        connect(watch, &Form::reconnectBluetooth, this, &MainWindow::reconnectToLastDevice);
         this->hide();
     }
     watch->showFullScreen();
+}
+
+// 发送命令并启用重试机制
+void MainWindow::sendCommandWithRetry(const QString &command)
+{
+    // 保存当前命令
+    currentCommand = command;
+    retryCount = 0;
+    
+    // 发送命令
+    QByteArray data = command.toUtf8();
+    logMessage(QString("发送: %1").arg(command));
+    service->writeCharacteristic(writeCharacteristic, data, QLowEnergyService::WriteWithResponse);
+    
+    // 启动响应定时器
+    responseTimer->start(RESPONSE_TIMEOUT);
+}
+
+// 响应超时处理
+void MainWindow::onResponseTimeout()
+{
+    responseTimer->stop();
+    
+    // 检查重试次数
+    if (retryCount < MAX_RETRIES) {
+        retryCount++;
+        logMessage(QString("响应超时，正在重试 (%1/%2)...").arg(retryCount).arg(MAX_RETRIES));
+        
+        // 重新发送命令
+        QByteArray data = currentCommand.toUtf8();
+        logMessage(QString("重发: %1").arg(currentCommand));
+        service->writeCharacteristic(writeCharacteristic, data, QLowEnergyService::WriteWithResponse);
+        
+        // 重新启动定时器
+        responseTimer->start(RESPONSE_TIMEOUT);
+    } else {
+        logMessage(QString("命令执行失败：%1").arg(currentCommand));
+        logMessage("已达到最大重试次数，停止重试");
+    }
+}
+
+// 处理命令响应
+void MainWindow::handleCommandResponse(const QString &response)
+{
+    // 检查是否是当前命令的响应
+    if (!currentCommand.isEmpty()) {
+        // 根据当前命令类型检查响应
+        if (currentCommand.startsWith("check_time+") && response.startsWith("CALIB_OK")) {
+            // 时间校准命令的响应
+            responseTimer->stop();
+            retryCount = 0;
+            currentCommand.clear();
+            logMessage("时间校准命令执行成功");
+        } else if (currentCommand.startsWith("modify_env+") && (response.startsWith("ENV_OK") || response.startsWith("ENV_ERR"))) {
+            // 环境参数修改命令的响应
+            responseTimer->stop();
+            retryCount = 0;
+            currentCommand.clear();
+            logMessage("环境参数修改命令执行成功");
+        }
+        // 其他命令的响应处理可以在这里添加
+    }
+}
+
+// 重新连接到最后设备
+void MainWindow::reconnectToLastDevice()
+{
+    if (currentDevice.isValid()) {
+        logMessage("正在重新连接到设备...");
+        connectToDevice(currentDevice);
+    } else {
+        logMessage("没有找到上次连接的设备");
+    }
 }
 
