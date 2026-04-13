@@ -115,7 +115,7 @@ int V_MOVE_INTERVAL = 500;     // V的下移间隔（1秒，FreeRTOS ticks）
 int V_SPAWN_INTERVAL = 500;     // V的生成间隔（1秒，FreeRTOS ticks）
 
 
-
+xTaskHandle xTask3_Handle = NULL;
 xTaskHandle xTask2_Handle = NULL;
 float AHT20_Temperature = 0;
 float AHT20_Humidity = 0;
@@ -145,6 +145,8 @@ float GyroZ = 0;
 
 
 float percentage=0;
+
+volatile uint8_t music_flag = 0;
 
 #define ACC_CHANGE_THRESHOLD 0.2f
 
@@ -774,14 +776,20 @@ void StartHomeButtonHandler(void *argument)
 				//				vTaskSuspend(lrbuttonListenHandle);
 				vTaskSuspend(MPU6050TaskHandle);
 				OLED_CLS();
-				xTaskCreate(gameTask,          // 任务函数
-						"gameTask",         // 任务名称
-						32,             // 任务栈大小
-						NULL,            // 无参数传递
-						(osPriority_t) osPriorityNormal3,               // 任务优先级：高于任务1
-						&xTask2_Handle );// 保存任务句柄
+				xTaskCreate(gameTask,"gameTask",32,NULL,(osPriority_t) osPriorityNormal3,&xTask2_Handle );
 			}
+		}
+		else if(g_home_key_state == KEY_LONG_PRESS && g_work_state == NORMAL&&Current_Show_Picture == music)
+		{
 
+			if (xTask3_Handle == NULL)
+			{
+				xTaskCreate(musicTask,"musicTask",32,NULL,(osPriority_t) osPriorityNormal3,&xTask3_Handle );
+			}
+			if(music_flag == 0)
+			{
+				vTaskResume(xTask3_Handle);
+			}
 		}
 		else if(g_home_key_state == KEY_LONG_PRESS && g_work_state == PLAY_GAME)
 		{
