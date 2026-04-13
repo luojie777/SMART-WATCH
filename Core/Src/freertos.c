@@ -899,13 +899,13 @@ void StartlrbuttonListen(void *argument)
 		{
 			if(g_right_key_state == KEY_SHORT_PRESS)
 			{
-				Current_Show_Picture = (Current_Show_Picture + 1) % 4;
+				Current_Show_Picture = (Current_Show_Picture + 1) % 5;
 				g_right_key_state = KEY_NONE;
 			}
 			else if(g_left_key_state == KEY_SHORT_PRESS)
 			{
 				if(Current_Show_Picture > 0)
-					Current_Show_Picture = (Current_Show_Picture - 1) % 4;
+					Current_Show_Picture = (Current_Show_Picture - 1) % 5;
 				g_left_key_state = KEY_NONE;
 			}
 		}
@@ -1295,6 +1295,12 @@ void StartOledshowTask(void *argument)
 			OLED_ShowCN_STR(48,2,2,2);
 			OLED_ShowStr(0, 4, (unsigned char*)row1, 2);
 			OLED_ShowStr(0, 6, (unsigned char*)row2, 2);
+			Picture_before = Current_Show_Picture;
+			break;
+		case music:
+			if(Current_Show_Picture != Picture_before)
+				OLED_CLS();
+			OLED_ShowCN_STR(48,2,8,2);
 			Picture_before = Current_Show_Picture;
 			break;
 		case game:

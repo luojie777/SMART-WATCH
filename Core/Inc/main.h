@@ -46,7 +46,8 @@ typedef enum {
 	home_time,
 	temperature,
 	pressure,
-	game
+	game,
+	music
 } Show_Picture_t;
 
 // 工作状态枚举
