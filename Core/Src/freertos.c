@@ -163,8 +163,8 @@ const osThreadAttr_t defaultTask_attributes = {
 osThreadId_t HomeButtonListeHandle;
 const osThreadAttr_t HomeButtonListe_attributes = {
 		.name = "HomeButtonListe",
-		.stack_size = 256 * 4,
-		.priority = (osPriority_t) osPriorityNormal,
+		.stack_size = 16 * 4,
+		.priority = (osPriority_t) osPriorityNormal3,
 };
 /* Definitions for HomeButtonHandl */
 osThreadId_t HomeButtonHandlHandle;
@@ -730,7 +730,7 @@ void StartHomeButtonListen(void *argument)
 			// 按键松开：重置按键状态
 			g_home_key_state = KEY_NONE;
 		}
-		osDelay(50);
+		osDelay(30);
 	}
 	/* USER CODE END StartHomeButtonListen */
 }
