@@ -167,7 +167,7 @@ osThreadId_t HomeButtonListeHandle;
 const osThreadAttr_t HomeButtonListe_attributes = {
 		.name = "HomeButtonListe",
 		.stack_size = 16 * 4,
-		.priority = (osPriority_t) osPriorityNormal,
+		.priority = (osPriority_t) osPriorityNormal3,
 };
 /* Definitions for HomeButtonHandl */
 osThreadId_t HomeButtonHandlHandle;
