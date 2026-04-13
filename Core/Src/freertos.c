@@ -42,6 +42,7 @@
 #include "flash_storage.h"
 #include <math.h>
 #include <stdlib.h>
+#include "notes.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -166,7 +167,7 @@ osThreadId_t HomeButtonListeHandle;
 const osThreadAttr_t HomeButtonListe_attributes = {
 		.name = "HomeButtonListe",
 		.stack_size = 16 * 4,
-		.priority = (osPriority_t) osPriorityNormal3,
+		.priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for HomeButtonHandl */
 osThreadId_t HomeButtonHandlHandle;
@@ -431,6 +432,7 @@ float ADC_Calculate_BatteryVoltage(void)
 }
 
 void gameTask(void * pvParameters);
+void musicTask(void * pvParameters);
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
@@ -784,11 +786,18 @@ void StartHomeButtonHandler(void *argument)
 
 			if (xTask3_Handle == NULL)
 			{
-				xTaskCreate(musicTask,"musicTask",32,NULL,(osPriority_t) osPriorityNormal3,&xTask3_Handle );
+				xTaskCreate(musicTask,"musicTask",256,NULL,(osPriority_t) osPriorityNormal3,&xTask3_Handle );
+				music_flag = 1;
 			}
 			if(music_flag == 0)
 			{
 				vTaskResume(xTask3_Handle);
+				music_flag = 1;
+			}
+			if(music_flag == 1)
+			{
+				vTaskSuspend(xTask3_Handle);
+				music_flag = 0;
 			}
 		}
 		else if(g_home_key_state == KEY_LONG_PRESS && g_work_state == PLAY_GAME)
@@ -1575,6 +1584,75 @@ void gameTask(void * pvParameters)
 			}
 		}
 	}
+}
+
+void musicTask(void * pvParameters)
+{
+	/* USER CODE BEGIN musicTask */
+	/* ========== 性能调节 ========== */
+#define TARGET_VOLUME 0.15f  // 15% 占空比，保证高频不失真
+#define NOTE_GAP_MS   15     // 音符间隙
+
+	/* ========== 全音域频率表 (严格对齐) ========== */
+	const uint32_t freq_tab[] = {
+			0,                                                  // 0: 休止
+			131, 147, 165, 175, 196, 220, 247,                  // 11~17: 低音
+			0, 0, 0,                                            // 8~10: 占位
+			262, 294, 330, 349, 392, 440, 494,                  // 1~7: 中音
+			0, 0, 0,                                            // 18~20: 占位
+			523, 587, 659, 698, 784, 880, 988,                  // 21~27: 高音
+			0, 0, 0,                                            // 28~30: 占位
+			1046, 1175, 1318, 1397, 1568, 1760, 1976            // 31~37: 超高音
+	};
+
+	/* 拍长单位 (ms) */
+	const uint32_t beat_ms[] = {0, 125, 250, 375, 500};
+
+	/* ========== 驱动函数 ========== */
+	void Buzzer_Set(uint32_t freq)
+	{
+		if(freq < 50)
+		{
+			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+			return;
+		}
+		uint16_t arr = (uint16_t)(1000000 / freq) - 1;
+
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+		__HAL_TIM_SET_AUTORELOAD(&htim1, arr);
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, (uint16_t)(arr * TARGET_VOLUME));
+		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	}
+
+	void Play_Music(void)
+	{
+		for(uint32_t i = 0; ; i++)
+		{
+			unsigned char note = music_config[i][0];
+			unsigned char beat = music_config[i][1];
+			if(note == 0 && beat == 0) break;
+
+			//索引范围检查，防止访问数组越界导致哑音
+			if(note < (sizeof(freq_tab)/sizeof(freq_tab[0])))
+			{
+				Buzzer_Set(freq_tab[note]);
+				osDelay(beat_ms[beat]);
+			}
+			Buzzer_Set(0);
+			osDelay(NOTE_GAP_MS);
+		}
+	}
+
+	/* 启动PWM输出 */
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+	/* Infinite loop */
+	for(;;)
+	{
+		Play_Music();
+		osDelay(2000);
+	}
+	/* USER CODE END musicTask */
 }
 /* USER CODE END Application */
 
