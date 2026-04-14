@@ -6,7 +6,7 @@
 // 程序代码结束地址约为0x08013d20（79KB），此地址避免冲突
 #define FLASH_SECTOR7_BASE_ADDR 0x08018000    // Flash存储起始地址（96KB处）
 #define FLASH_SECTOR7_PAGE_COUNT 16           // 存储区域大小（16页，16KB）
-#define ENV_CONFIG_SIZE 16                    // 配置结构体大小（16字节）
+#define ENV_CONFIG_SIZE 19                    // 配置结构体大小（19字节）
 #define RTC_INIT_FLAG 0x5A5A                 // RTC初始化标志
 
 // 阈值配置结构体
@@ -15,6 +15,9 @@ typedef struct{
     float temp_low_thresh;
     float press_low_thresh;
     uint32_t Screen_off_time;
+    uint8_t alarm_hour;
+    uint8_t alarm_min;
+    uint8_t alarm_second;
 }Env_Thresh_Config_t;
 
 HAL_StatusTypeDef Flash_Storage_Erase_Sector7(void);

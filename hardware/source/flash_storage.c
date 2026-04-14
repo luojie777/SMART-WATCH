@@ -55,12 +55,20 @@ HAL_StatusTypeDef Flash_Storage_Read_Latest_Thresh(Env_Thresh_Config_t *pLatestC
         pLatestConfig->temp_low_thresh = 5.0f;
         pLatestConfig->press_low_thresh = 80000.0f;
         pLatestConfig->Screen_off_time = 30000;
+        pLatestConfig->alarm_hour = 0;
+        pLatestConfig->alarm_min = 0;
+        pLatestConfig->alarm_second = 0;
         Flash_Storage_Write_Thresh(pLatestConfig);
     }
     else{
         uint8_t *p_src = (uint8_t *)FLASH_SECTOR7_BASE_ADDR;
         uint8_t *p_dst = (uint8_t *)pLatestConfig;
         for (uint32_t i = 0; i < ENV_CONFIG_SIZE; i++) *p_dst++ = *p_src++;
+        
+        // 检查闹钟值是否为255（未初始化），如果是则设置为默认值0
+        if(pLatestConfig->alarm_hour == 0xFF) pLatestConfig->alarm_hour = 0;
+        if(pLatestConfig->alarm_min == 0xFF) pLatestConfig->alarm_min = 0;
+        if(pLatestConfig->alarm_second == 0xFF) pLatestConfig->alarm_second = 0;
     }
 
     return HAL_OK;

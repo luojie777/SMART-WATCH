@@ -57,6 +57,7 @@ typedef enum {
 	MODIFY_TIME,
 
 	MODIFY_TEMP,
+	MODIFY_ALARM,
 	PLAY_GAME
 } Work_State_t;
 
@@ -82,6 +83,13 @@ typedef enum {
 	mintemp,
 	maxtemp
 } Modify_Temp_choose_t;
+
+// 闹钟修改选项枚举
+typedef enum {
+	MODIFY_ALARM_HOUR,
+	MODIFY_ALARM_MIN,
+	MODIFY_ALARM_SEC
+} Modify_Alarm_choose_t;
 
 // 串口命令枚举
 typedef enum {
@@ -156,8 +164,12 @@ extern volatile Key_State_t g_left_key_state;
 extern volatile Key_State_t g_right_key_state;
 extern volatile Modify_Time_choose_t Modify_Time_choose;
 extern volatile Modify_Temp_choose_t Modify_Temp_choose;
+extern volatile Modify_Alarm_choose_t Modify_Alarm_choose;
 extern struct tm *time_temp;
 extern uint8_t oled_screen_on;
+extern uint8_t alarm_hour;
+extern uint8_t alarm_min;
+extern uint8_t alarm_second;
 extern Env_Thresh_Config_t g_global_env_config;
 extern QueueHandle_t xUartQueue;
 extern V_Obj_t V_Array[MAX_V_COUNT];

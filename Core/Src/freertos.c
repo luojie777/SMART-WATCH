@@ -98,8 +98,10 @@ volatile Key_State_t g_left_key_state = KEY_NONE;
 volatile Key_State_t g_right_key_state = KEY_NONE;
 volatile Modify_Time_choose_t Modify_Time_choose = year;
 volatile Modify_Temp_choose_t Modify_Temp_choose = mintemp;
+volatile Modify_Alarm_choose_t Modify_Alarm_choose = MODIFY_ALARM_HOUR;
 struct tm *time_temp = NULL;
 uint8_t oled_screen_on = 1;
+
 
 
 
@@ -135,9 +137,9 @@ float  H_temp;
 float  L_temp;
 float  L_preesure;
 uint32_t  Screen_off_time = 30000;
-uint8_t alarm_hour;
-uint8_t alarm_min;
-uint8_t alarm_second;
+uint8_t alarm_hour = 0;
+uint8_t alarm_min = 0;
+uint8_t alarm_second = 0;
 
 
 float AccX = 0;
@@ -365,6 +367,9 @@ void updatea_env_value()
 	L_temp = g_global_env_config.temp_low_thresh;
 	L_preesure = g_global_env_config.press_low_thresh;
 	Screen_off_time = g_global_env_config.Screen_off_time;
+	alarm_hour = g_global_env_config.alarm_hour;
+	alarm_min = g_global_env_config.alarm_min;
+	alarm_second = g_global_env_config.alarm_second;
 }
 
 // 提取OLED刷新公共函数，减少代码冗余
@@ -592,7 +597,8 @@ void StartDefaultTask(void *argument)
 				env_param = strstr((char *)usart2_rx_str_buf, "modify_env+") + strlen("modify_env+");
 				if(env_param == NULL)
 				{
-					sprintf(message, "ENV_ERR: Param NULL\r\n");
+					//HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+					//sprintf(message, "ENV_ERR: Param NULL\r\n");
 					HAL_UART_Transmit(&huart2, (uint8_t*)message, strlen(message), 100);
 					break;
 				}
@@ -604,8 +610,11 @@ void StartDefaultTask(void *argument)
 				HAL_UART_Transmit(&huart2, (uint8_t*)"SDSD  ", strlen("SDSD  "), 100);
 				HAL_UART_Transmit(&huart2, (uint8_t*)env_buf, strlen(env_buf), 100);
 				// 3. 解析键值对（以$分隔，格式：$key:value$key:value$）
+				//HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 				token = strtok(env_buf, "$");
+				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 				int all_ok = 1; // 所有参数是否解析成功
+				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 				taskENTER_CRITICAL();
 				while(token != NULL && *token != '\0')
 				{
@@ -871,6 +880,31 @@ void StartHomeButtonHandler(void *argument)
 			vTaskResume(OledshowTaskHandle);
 			vTaskResume(UartTestTaskHandle);
 		}
+		else if(g_home_key_state == KEY_LONG_PRESS && g_work_state == NORMAL&&Current_Show_Picture == alarm)
+		{
+			//修改闹钟
+			g_work_state = MODIFY_ALARM;
+			Modify_Alarm_choose = MODIFY_ALARM_HOUR;
+			OLED_CLS();
+			vTaskSuspend(OledshowTaskHandle);
+			vTaskSuspend(UartTestTaskHandle);
+			sprintf(row1,"%02d-%02d-%02d",alarm_hour,alarm_min,alarm_second);
+			OLED_ShowStr(30, 3, (unsigned char*)row1, 2);
+			g_home_key_state = KEY_NONE;
+		}
+		else if(g_home_key_state == KEY_LONG_PRESS && g_work_state == MODIFY_ALARM)
+		{
+			//退出修改闹钟
+			g_work_state = NORMAL;
+			g_home_key_state = KEY_NONE;
+			g_global_env_config.alarm_hour = alarm_hour;
+			g_global_env_config.alarm_min = alarm_min;
+			g_global_env_config.alarm_second = alarm_second;
+			Flash_Storage_Write_Thresh(&g_global_env_config);
+			OLED_CLS();
+			vTaskResume(OledshowTaskHandle);
+			vTaskResume(UartTestTaskHandle);
+		}
 		else if(g_home_key_state == KEY_SHORT_PRESS && g_work_state == MODIFY_TIME)
 		{
 			//选择要修改的时间
@@ -888,6 +922,12 @@ void StartHomeButtonHandler(void *argument)
 			//taskEXIT_CRITICAL();
 			g_home_key_state = KEY_NONE;
 			//其他两个按键监听g_work_state修改
+		}
+		else if(g_home_key_state == KEY_SHORT_PRESS && g_work_state == MODIFY_ALARM)
+		{
+			//选择要修改的闹钟
+			Modify_Alarm_choose = (Modify_Alarm_choose + 1) % 3;
+			g_home_key_state = KEY_NONE;
 		}
 		else if(g_home_key_state == KEY_NONE && g_work_state == MODIFY_TIME)
 		{
@@ -1093,6 +1133,59 @@ void StartlrbuttonListen(void *argument)
 				g_right_key_state = KEY_NONE;
 			}
 		}
+		else if(g_work_state == MODIFY_ALARM)
+		{
+			if(g_left_key_state == KEY_SHORT_PRESS)
+			{
+				switch(Modify_Alarm_choose)
+				{
+				case MODIFY_ALARM_HOUR:
+					if(alarm_hour > 0) {
+						alarm_hour--;
+					}
+					break;
+				case MODIFY_ALARM_MIN:
+					if(alarm_min > 0) {
+						alarm_min--;
+					}
+					break;
+				case MODIFY_ALARM_SEC:
+					if(alarm_second > 0) {
+						alarm_second--;
+					}
+					break;
+				}
+				// 刷新显示
+				sprintf(row1,"%02d-%02d-%02d",alarm_hour,alarm_min,alarm_second);
+				OLED_ShowStr(24, 3, (unsigned char*)row1, 2);
+				g_left_key_state = KEY_NONE;
+			}
+			else if(g_right_key_state == KEY_SHORT_PRESS)
+			{
+				switch(Modify_Alarm_choose)
+				{
+				case MODIFY_ALARM_HOUR:
+					if(alarm_hour < 23) {
+						alarm_hour++;
+					}
+					break;
+				case MODIFY_ALARM_MIN:
+					if(alarm_min < 59) {
+						alarm_min++;
+					}
+					break;
+				case MODIFY_ALARM_SEC:
+					if(alarm_second < 59) {
+						alarm_second++;
+					}
+					break;
+				}
+				// 刷新显示
+				sprintf(row1,"%02d-%02d-%02d",alarm_hour,alarm_min,alarm_second);
+				OLED_ShowStr(24, 3, (unsigned char*)row1, 2);
+				g_right_key_state = KEY_NONE;
+			}
+		}
 		osDelay(50);
 	}
 	/* USER CODE END StartlrbuttonListen */
@@ -1250,31 +1343,44 @@ void StartOledshowTask(void *argument)
 	last_minute = now->tm_min;
 	for(;;)
 	{
+		// 获取当前时间
+		now = Clock_RTC_GetTime();
+		// 闹钟触发逻辑（00:00:00为不设置闹钟）- 优先级最高
+		if(!(alarm_hour == 0 && alarm_min == 0 && alarm_second == 0) &&
+		   now->tm_hour == alarm_hour && now->tm_min == alarm_min && now->tm_sec == alarm_second)
+		{
+			// 蜂鸣器一直响
+			//__HAL_TIM_SET_AUTORELOAD(&htim1, 999); // 1kHz频率
+			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 200); // 20%占空比，减小音量
+			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+		}
+		// 整点提醒逻辑
+		else if(now->tm_min == 0 && last_minute != 0)
+		{
+			// 时间在7:00-21:00之间
+			if(now->tm_hour >= 7 && now->tm_hour <= 21)
+			{
+				// 蜂鸣器提醒，滴滴两声
+				//__HAL_TIM_SET_AUTORELOAD(&htim1, 999); // 1kHz频率
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 500); // 50%占空比
+				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+				osDelay(200);
+				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+				osDelay(100);
+				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+				osDelay(200);
+				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+			}
+		}
+		last_minute = now->tm_min;
+
 		switch(Current_Show_Picture)
 		{
 		case home_time:
 			if(Current_Show_Picture != Picture_before)
 				OLED_CLS();
-			now = Clock_RTC_GetTime();
-			// 整点提醒逻辑
-			if(now->tm_min == 0 && last_minute != 0)
-			{
-				// 时间在7:00-21:00之间
-				if(now->tm_hour >= 7 && now->tm_hour <= 21)
-				{
-					// 蜂鸣器提醒，滴滴两声
-					HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-					__HAL_TIM_SET_AUTORELOAD(&htim1, 999); // 1kHz频率
-					__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 400); // 50%占空比
-					osDelay(200);
-					HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
-					osDelay(100);
-					HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-					osDelay(200);
-					HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
-				}
-			}
-			last_minute = now->tm_min;
+			// 时间已经在上面获取过了
+			//OLED_ShowStr(36, 0, (unsigned char*)"BAT", 2);
 			//OLED_ShowStr(36, 0, (unsigned char*)"BAT", 2);
 			sprintf(row1,"%02d-%02d-%02d",now->tm_year + 1900,now->tm_mon + 1,now->tm_mday);
 			sprintf(row2,"%02d:%02d:%02d",now->tm_hour,now->tm_min,now->tm_sec);
@@ -1309,7 +1415,7 @@ void StartOledshowTask(void *argument)
 				OLED_CLS();
 			OLED_ShowCN_STR(48,1,10,2);
 			sprintf(row1,"%02d-%02d-%02d",alarm_hour,alarm_min,alarm_second);
-			OLED_ShowStr(24, 1, (unsigned char*)row1, 2);
+			OLED_ShowStr(30, 3, (unsigned char*)row1, 2);
 			Picture_before = Current_Show_Picture;
 			break;
 		case temperature:
