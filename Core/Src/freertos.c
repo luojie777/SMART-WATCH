@@ -165,8 +165,8 @@ static uint8_t last_minute = 0; // 上一次的分钟数，用于检测整点
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
 		.name = "defaultTask",
-		.stack_size = 256 * 4,
-		.priority = (osPriority_t) osPriorityNormal,
+		.stack_size = 512 * 4,
+		.priority = (osPriority_t) osPriorityNormal3,
 };
 /* Definitions for HomeButtonListe */
 osThreadId_t HomeButtonListeHandle;
@@ -594,14 +594,14 @@ void StartDefaultTask(void *argument)
 			case CMD_MODIFY_ENV:
 			{
 				// 1. 提取环境参数（跳过modify_env+前缀）
-				env_param = strstr((char *)usart2_rx_str_buf, "modify_env+") + strlen("modify_env+");
+				env_param = strstr((char *)usart2_rx_str_buf, "modify_env+");
 				if(env_param == NULL)
 				{
-					//HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-					//sprintf(message, "ENV_ERR: Param NULL\r\n");
+					sprintf(message, "ENV_ERR: Param NULL\r\n");
 					HAL_UART_Transmit(&huart2, (uint8_t*)message, strlen(message), 100);
 					break;
 				}
+				env_param += strlen("modify_env+");
 
 				// 2. 清洗参数：去除\r\n，复制到临时缓冲区
 				env_param[strcspn(env_param, "\r\n")] = '\0';
@@ -609,59 +609,76 @@ void StartDefaultTask(void *argument)
 				env_buf[sizeof(env_buf)-1] = '\0';
 				HAL_UART_Transmit(&huart2, (uint8_t*)"SDSD  ", strlen("SDSD  "), 100);
 				HAL_UART_Transmit(&huart2, (uint8_t*)env_buf, strlen(env_buf), 100);
-				// 3. 解析键值对（以$分隔，格式：$key:value$key:value$）
-				//HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-				token = strtok(env_buf, "$");
-				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+				// 3. 手动解析键值对（以$分隔，格式：$key:value$key:value$）
 				int all_ok = 1; // 所有参数是否解析成功
-				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-				taskENTER_CRITICAL();
-				while(token != NULL && *token != '\0')
+				int i = 0;
+				while(i < sizeof(env_buf) && env_buf[i] != '\0')
 				{
-					// ========== 关键修改：用strchr手动分割:，替代嵌套strtok ==========
-					char *colon_pos = strchr(token, ':');
-					if(colon_pos == NULL)
+					// 跳过非$字符
+					while(i < sizeof(env_buf) && env_buf[i] != '$' && env_buf[i] != '\0')
 					{
-						all_ok = 0;
-						break;
+						i++;
 					}
-
-					// 分割key
-					char key_buf[10] = {0};
-					int key_len = colon_pos - token;
-					strncpy(key_buf, token, key_len);
-					key_buf[key_len] = '\0';
-
-					// 分割value
-					char value_buf[10] = {0};
-					strncpy(value_buf, colon_pos + 1, strlen(colon_pos + 1));
-					value_buf[strlen(colon_pos + 1)] = '\0';
-
-					// 调试打印（可选）
-					//					char dbg_msg[64] = {0};
-					//					sprintf(dbg_msg, "ENV_DBG: key=%s, value=%s\r\n", key_buf, value_buf);
-					//					HAL_UART_Transmit(&huart2, (uint8_t*)dbg_msg, strlen(dbg_msg), 100);
-
-					// 校验并解析
-					if(strlen(key_buf) > 0 && strlen(value_buf) > 0)
+					// 跳过$字符
+					if(i < sizeof(env_buf) && env_buf[i] == '$')
 					{
-						parse_result = Parse_Env_KeyValue(key_buf, value_buf);
-						if(parse_result != 0)
+						i++;
+					}
+					// 找到键值对的开始位置
+					int start = i;
+					// 找到下一个$字符或结束符
+					while(i < sizeof(env_buf) && env_buf[i] != '$' && env_buf[i] != '\0')
+					{
+						i++;
+					}
+					// 提取键值对
+					if(i > start)
+					{
+						// 复制到临时缓冲区
+						char pair_buf[20] = {0};
+						strncpy(pair_buf, &env_buf[start], i - start);
+						pair_buf[i - start] = '\0';
+
+						// 分割key和value
+						char *colon_pos = strchr(pair_buf, ':');
+						if(colon_pos == NULL)
+						{
+							all_ok = 0;
+							break;
+						}
+
+						// 分割key
+						char key_buf[10] = {0};
+						int key_len = colon_pos - pair_buf;
+						strncpy(key_buf, pair_buf, key_len);
+						key_buf[key_len] = '\0';
+
+						// 分割value
+						char value_buf[10] = {0};
+						strncpy(value_buf, colon_pos + 1, strlen(colon_pos + 1));
+						value_buf[strlen(colon_pos + 1)] = '\0';
+
+						// 校验并解析
+						if(strlen(key_buf) > 0 && strlen(value_buf) > 0)
+						{
+							// 只在修改共享资源时进入临界区
+							taskENTER_CRITICAL();
+							parse_result = Parse_Env_KeyValue(key_buf, value_buf);
+							taskEXIT_CRITICAL();
+							if(parse_result != 0)
+							{
+								all_ok = 0;
+								break;
+							}
+						}
+						else
 						{
 							all_ok = 0;
 							break;
 						}
 					}
-					else
-					{
-						all_ok = 0;
-						break;
-					}
-
-					// 继续分割下一个token（上下文未被破坏）
-					token = strtok(NULL, "$");
 				}
-				taskEXIT_CRITICAL();
 
 				// 4. 所有参数解析成功，写入Flash并返回成功响应
 				if(all_ok)
