@@ -141,7 +141,7 @@ void Clock_RTC_Init(){
         .tm_year = 2025 - 1900,
         .tm_mon  = 12 - 1,
         .tm_mday = 28,
-        .tm_hour = 23,
+        .tm_hour = 8,
         .tm_min  = 59,
         .tm_sec  = 55
     };

@@ -44,6 +44,7 @@ extern "C" {
 // 显示模式枚举
 typedef enum {
 	home_time,
+	alarm,
 	temperature,
 	pressure,
 	game,
@@ -54,6 +55,7 @@ typedef enum {
 typedef enum {
 	NORMAL,
 	MODIFY_TIME,
+
 	MODIFY_TEMP,
 	PLAY_GAME
 } Work_State_t;

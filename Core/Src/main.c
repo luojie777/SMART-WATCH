@@ -116,7 +116,7 @@ int main(void)
   DS18B20_Init();
   //MPU6050_Init();
   Clock_RTC_Init();
-  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 1000);
+  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 400);
   /* USER CODE END 2 */
 
   /* Init scheduler */

@@ -135,6 +135,9 @@ float  H_temp;
 float  L_temp;
 float  L_preesure;
 uint32_t  Screen_off_time = 30000;
+uint8_t alarm_hour;
+uint8_t alarm_min;
+uint8_t alarm_second;
 
 
 float AccX = 0;
@@ -153,6 +156,7 @@ volatile uint8_t music_flag = 0;
 
 static float    last_AccX = 0.0f, last_AccY = 0.0f, last_AccZ = 0.0f; // 上一次加速度数据
 static uint32_t axy_check_counter = 1;
+static uint8_t last_minute = 0; // 上一次的分钟数，用于检测整点
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
@@ -916,13 +920,13 @@ void StartlrbuttonListen(void *argument)
 		{
 			if(g_right_key_state == KEY_SHORT_PRESS)
 			{
-				Current_Show_Picture = (Current_Show_Picture + 1) % 5;
+				Current_Show_Picture = (Current_Show_Picture + 1) % 6;
 				g_right_key_state = KEY_NONE;
 			}
 			else if(g_left_key_state == KEY_SHORT_PRESS)
 			{
 				if(Current_Show_Picture > 0)
-					Current_Show_Picture = (Current_Show_Picture - 1) % 5;
+					Current_Show_Picture = (Current_Show_Picture - 1) % 6;
 				g_left_key_state = KEY_NONE;
 			}
 		}
@@ -1241,6 +1245,9 @@ void StartOledshowTask(void *argument)
 	char row1[30] = "";
 	char row2[30] = "";
 	char row3[30] = "";
+	// 初始化last_minute为当前分钟
+	now = Clock_RTC_GetTime();
+	last_minute = now->tm_min;
 	for(;;)
 	{
 		switch(Current_Show_Picture)
@@ -1249,6 +1256,25 @@ void StartOledshowTask(void *argument)
 			if(Current_Show_Picture != Picture_before)
 				OLED_CLS();
 			now = Clock_RTC_GetTime();
+			// 整点提醒逻辑
+			if(now->tm_min == 0 && last_minute != 0)
+			{
+				// 时间在7:00-21:00之间
+				if(now->tm_hour >= 7 && now->tm_hour <= 21)
+				{
+					// 蜂鸣器提醒，滴滴两声
+					HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+					__HAL_TIM_SET_AUTORELOAD(&htim1, 999); // 1kHz频率
+					__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 400); // 50%占空比
+					osDelay(200);
+					HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+					osDelay(100);
+					HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+					osDelay(200);
+					HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+				}
+			}
+			last_minute = now->tm_min;
 			//OLED_ShowStr(36, 0, (unsigned char*)"BAT", 2);
 			sprintf(row1,"%02d-%02d-%02d",now->tm_year + 1900,now->tm_mon + 1,now->tm_mday);
 			sprintf(row2,"%02d:%02d:%02d",now->tm_hour,now->tm_min,now->tm_sec);
@@ -1276,6 +1302,14 @@ void StartOledshowTask(void *argument)
 			{
 				OLED_ShowStr(50, 6, (unsigned char*)"     ", 1);
 			}
+			Picture_before = Current_Show_Picture;
+			break;
+		case alarm:
+			if(Current_Show_Picture != Picture_before)
+				OLED_CLS();
+			OLED_ShowCN_STR(48,1,10,2);
+			sprintf(row1,"%02d-%02d-%02d",alarm_hour,alarm_min,alarm_second);
+			OLED_ShowStr(24, 1, (unsigned char*)row1, 2);
 			Picture_before = Current_Show_Picture;
 			break;
 		case temperature:
